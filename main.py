@@ -1,17 +1,21 @@
 ﻿from matplotlib import pyplot as plt
 
-from bee import Hive
-import bee_examples
-from bee_test_func import DynamicBeeScatterplot
+from models.hive import Hive
+from models.bee_test_functions import (
+    SphereBee,
+    GoldsteinBee,
+    HimmelblauBee,
+    RosenbrockBee,
+)
+from utils import DynamicBeeScatterplot
 
 if __name__ == "__main__":
     plt.ion()
 
-    # bee_type = bee_examples.SphereBee
-
-    # bee_type = bee_examples.GoldsteinBee
-    bee_type = bee_examples.HimmelblauBee
-    # bee_type = bee_examples.RosenbrockBee
+    bee_type = SphereBee
+    # bee_type = GoldsteinBee
+    # bee_type = HimmelblauBee
+    # bee_type = RosenbrockBee
 
     # Количество пчел-разведчиков
     scout_bee_count = 300
@@ -73,7 +77,6 @@ if __name__ == "__main__":
                 best_func = curr_hive.best_fitness
                 func_counter = 0
 
-                # bee_scatter_plot.update(0, 1)
                 bee_scatter_plot.update(0, 1)
 
                 print(f"\n*** Run №{current_run + 1} | Iteration: {n}")
@@ -91,9 +94,8 @@ if __name__ == "__main__":
                     print(f"Best fitness: {curr_hive.best_fitness}")
 
             if n % 10 == 0:
-                # bee_scatter_plot.update(2, 3)
                 bee_scatter_plot.update(0, 1)
 
         fig = bee_scatter_plot.get_figure()
 
-        fig.savefig(f"{bee_type.__name__}_run_{current_run}.png")
+        fig.savefig(f"images/{bee_type.__name__}_run_{current_run}.png")

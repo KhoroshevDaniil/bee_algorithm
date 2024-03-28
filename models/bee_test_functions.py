@@ -1,6 +1,6 @@
 ﻿# -*- coding: utf-8 -*-
 import random
-from bee import SimpleBee
+from models.bee import SimpleBee
 
 
 class SphereBee(SimpleBee):
