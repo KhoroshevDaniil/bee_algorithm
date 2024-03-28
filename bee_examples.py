@@ -1,12 +1,13 @@
 ﻿# -*- coding: utf-8 -*-
 import random
-import math
-
 from bee import SimpleBee
 
 
 class SphereBee(SimpleBee):
-    """Функция - сумма квадратов по каждой координате"""
+    """
+    Функция - сумма квадратов по каждой координате
+    f(0, 0, ..., 0) = 0
+    """
 
     coordinates_count = 4
 
@@ -34,7 +35,10 @@ class SphereBee(SimpleBee):
 
 
 class GoldsteinBee(SimpleBee):
-    """Функция Goldstein & Price"""
+    """
+    Функция Goldstein & Price
+    f(0, -1) = 3
+    """
 
     coordinates_count: int = 2
 
@@ -68,7 +72,11 @@ class GoldsteinBee(SimpleBee):
 
 
 class RosenbrockBee(SimpleBee):
-    """Функция Rosenbrock"""
+    """Функция Rosenbrock
+    n = 2, f(1, 1) = 0,
+    n = 3, f(1, 1, 1) = 0,
+    n > 3, f(1, 1, ..., 1) = 0.
+    """
 
     # Количество координат
     coordinates_count = 4
@@ -93,14 +101,19 @@ class RosenbrockBee(SimpleBee):
     def calc_fitness(self):
         self.fitness = 0.0
         for n in range(3):
-            xi = self.position[n]
-            xi_1 = self.position[n + 1]
+            x_i = self.position[n]
+            x_i_1 = self.position[n + 1]
 
-            self.fitness -= 100.0 * (((xi * xi - xi_1) ** 2) + ((1 - xi) ** 2))
+            self.fitness -= 100.0 * (((x_i_1 - x_i ** 2) ** 2) + ((x_i - 1) ** 2))
 
 
 class HimmelblauBee(SimpleBee):
-    """Функция Химмельблау (4 минимума)"""
+    """Функция Химмельблау (4 возможных минимума)
+    f(3.0, 2.0) = 0.0
+    f(-2.805, 3.131) = 0.0
+    f(-3.779, -3.283) = 0.0
+    f(3.584, -1.848) = 0.0
+    """
 
     # Количество координат
     coordinates_count = 2
