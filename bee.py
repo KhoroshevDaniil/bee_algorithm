@@ -1,44 +1,40 @@
-﻿# -*- coding: utf-8 -*-
-"""
-Реализация алгоритма роя пчел
-"""
-
-import random
-import math
+﻿import random
+from typing import List
 
 
 class SimpleBee:
-    """Класс пчел, где в качестве координат используется список дробных чисел"""
-
     def __init__(self):
-        # Положение пчелы (искомые величины)
-        self.position = None
-
         # Интервалы изменений искомых величин (координат)
-        self.min_val = None
-        self.max_val = None
+        self.min_val: List = []
+        self.max_val: List = []
+
+        # Положение пчелы (искомые величины)
+        self.position: List = []
 
         # Значение целевой функции
-        self.fitness = 0.0
+        self.fitness: float = 0.0
 
-    def calc_fitness(self):
-        """Расчет целевой функции. Этот метод необходимо перегрузить в производном классе.
-        Функция не возвращает значение целевой функции, а только устанавливает член self.fitness
-        Эту функцию необходимо вызывать после каждого изменения координат пчелы"""
+    @staticmethod
+    def get_start_range():
         pass
 
-    # def sort(self, other_bee):
-    #     """Функция для сортировки пчел по их целевой функции (здоровью) в порядке убывания."""
-    #     if self.fitness < other_bee.fitness:
-    #         return -1
-    #     elif self.fitness > other_bee.fitness:
-    #         return 1
-    #     else:
-    #         return 0
+    @staticmethod
+    def get_range_coefficient():
+        pass
 
-    def other_patch(self, bee_list, range_list):
-        """Проверить находится ли пчела на том же участке, что и одна из пчел в bee_list.
-        range_list - интервал изменения каждой из координат"""
+    def calc_fitness(self):
+        """
+        Расчет целевой функции. Этот метод необходимо перегрузить в производном классе.
+        Функция не возвращает значение целевой функции, а только устанавливает член self.fitness
+        Эту функцию необходимо вызывать после каждого изменения координат пчелы
+        """
+        pass
+
+    def check_other_patch(self, bee_list, range_list):
+        """
+        Проверить находится ли пчела на том же участке, что и одна из пчел в bee_list.
+        range_list - интервал изменения каждой из координат
+        """
         if len(bee_list) == 0:
             return True
 
@@ -52,11 +48,12 @@ class SimpleBee:
         return False
 
     def get_position(self):
-        """Вернуть копию (!) своих координат"""
-        return [val for val in self.position]
+        return self.position.copy()
 
     def goto(self, other_pos, range_list):
-        """Перелет в окрестность места, которое нашла другая пчела. Не в то же самое место! """
+        """
+        Перелет в окрестность места, которое нашла другая пчела. Не в то же самое место!
+        """
 
         # К каждой из координат добавляем случайное значение
         self.position = [other_pos[n] + random.uniform(-range_list[n], range_list[n]) for n in range(len(other_pos))]
@@ -74,24 +71,24 @@ class SimpleBee:
         self.calc_fitness()
 
     def check_position(self):
-        """Скорректировать координаты пчелы, если они выходят за установленные пределы"""
+        """
+        Скорректировать координаты пчелы, если они выходят за установленные пределы
+        """
+
         for n in range(len(self.position)):
             if self.position[n] < self.min_val[n]:
                 self.position[n] = self.min_val[n]
-
             elif self.position[n] > self.max_val[n]:
                 self.position[n] = self.max_val[n]
 
 
 class Hive:
-    """Улей. Управляет пчелами"""
-
     def __init__(self,
                  scout_bee_count,
                  selected_bee_count,
                  best_bee_count,
-                 sel_sites_count,
-                 best_sites_count,
+                 selected_spots_count,
+                 best_spots_count,
                  range_list,
                  bee_type):
         """
@@ -99,19 +96,19 @@ class Hive:
         selected_bee_count - количество пчел, посылаемое на один из лучших участков
         best_bee_count - количество пчел, посылаемое на остальные выбранные участки
 
-        sel_sites_count - количество выбранных участков
-        best_sites_count - количество лучших участков среди выбранных
+        selected_spots_count - количество выбранных участков
+        best_spots_count - количество лучших участков среди выбранных
         bee_type - класс пчелы, производный от bee
 
         range_list - список диапазонов координат для одного участка
         """
 
-        self.selected_bee_count = scout_bee_count
+        self.scout_bee_count = scout_bee_count
         self.selected_bee_count = selected_bee_count
         self.best_bee_count = best_bee_count
 
-        self.sel_sites_count = sel_sites_count
-        self.best_sites_count = best_sites_count
+        self.selected_spots_count = selected_spots_count
+        self.best_spots_count = best_spots_count
 
         self.bee_type = bee_type
 
@@ -120,24 +117,26 @@ class Hive:
         # Лучшая на данный момент позиция
         self.best_position = None
 
-        # Лучшее на данный момент здоровье пчелы (чем больше, тем лучше)
+        # Лучшее на данный значение целевой функции
         self.best_fitness = -1.0e9
 
         # Начальное заполнение роя пчелами со случайными координатами
-        bee_count = scout_bee_count + selected_bee_count * sel_sites_count + best_bee_count * best_sites_count
+        bee_count = scout_bee_count + selected_bee_count * selected_spots_count + best_bee_count * best_spots_count
         self.swarm = [bee_type() for n in range(bee_count)]
 
         # Лучшие и выбранные места
-        self.best_sites = []
-        self.sel_sites = []
+        self.best_spots = []
+        self.selected_spots = []
 
         self.swarm.sort(key=lambda bee: bee.fitness, reverse=True)
         self.best_position = self.swarm[0].get_position()
         self.best_fitness = self.swarm[0].fitness
 
     def send_bees(self, position, index, count):
-        """ Послать пчел на позицию.
-        Возвращает номер следующей пчелы для вылета """
+        """
+        Послать пчел на позицию.
+        Возвращает номер следующей пчелы для вылета
+        """
         for n in range(count):
             # Чтобы не выйти за пределы улея
             if index == len(self.swarm):
@@ -145,8 +144,8 @@ class Hive:
 
             curr_bee = self.swarm[index]
 
-            if curr_bee not in self.best_sites and curr_bee not in self.sel_sites:
-                # Пчела не на лучших или выбранных позициях
+            # Пчела не на лучших или выбранных позициях
+            if (curr_bee not in self.best_spots) and (curr_bee not in self.selected_spots):
                 curr_bee.goto(position, self.range)
 
             index += 1
@@ -154,43 +153,47 @@ class Hive:
         return index
 
     def next_step(self):
-        """Новая итерация"""
+        """
+        Новая итерация
+        """
+
         # Выбираем самые лучшие места и сохраняем ссылки на тех, кто их нашел
-        self.best_sites = [self.swarm[0]]
+        self.best_spots = [self.swarm[0]]
 
         curr_index = 1
         for curr_bee in self.swarm[curr_index: -1]:
             # Если пчела находится в пределах уже отмеченного лучшего участка, то ее положение не считаем
-            if curr_bee.other_patch(self.best_sites, self.range):
-                self.best_sites.append(curr_bee)
+            if curr_bee.check_other_patch(self.best_spots, self.range):
+                self.best_spots.append(curr_bee)
 
-                if len(self.best_sites) == self.best_sites_count:
+                if len(self.best_spots) == self.best_spots_count:
                     break
 
             curr_index += 1
 
-        self.sel_sites = []
+        self.selected_spots = []
 
         for curr_bee in self.swarm[curr_index: -1]:
-            if curr_bee.other_patch(self.best_sites, self.range) and curr_bee.other_patch(self.sel_sites, self.range):
-                self.sel_sites.append(curr_bee)
+            if curr_bee.check_other_patch(self.best_spots, self.range) and curr_bee.check_other_patch(self.selected_spots, self.range):
+                self.selected_spots.append(curr_bee)
 
-                if len(self.sel_sites) == self.sel_sites_count:
+                if len(self.selected_spots) == self.selected_spots_count:
                     break
 
-        # Отправляем пчел на задание :)
-        # Отправляем сначала на лучшие места
+        # Отправляем пчел на задание
 
         # Номер очередной отправляемой пчелы. 0-ую пчелу никуда не отправляем
         bee_index = 1
 
-        for best_bee in self.best_sites:
+        # Сначала отправляем на лучшие места
+        for best_bee in self.best_spots:
             bee_index = self.send_bees(best_bee.get_position(), bee_index, self.best_bee_count)
 
-        for sel_bee in self.sel_sites:
+        # Затем на остальные выбранные места
+        for sel_bee in self.selected_spots:
             bee_index = self.send_bees(sel_bee.get_position(), bee_index, self.selected_bee_count)
 
-        # Оставшихся пчел пошлем куда попадет
+        # Остальные пчёлы летят куда глаза глядят
         for curr_bee in self.swarm[bee_index: -1]:
             curr_bee.goto_random()
 
@@ -199,12 +202,12 @@ class Hive:
         self.best_fitness = self.swarm[0].fitness
 
 
-class statistic:
+class Statistic:
     """ Класс для сбора статистики по запускам алгоритма"""
 
     def __init__(self):
         # Индекс каждого списка соответствует итерации.
-        # В  элементе каждого списка хранится список значений для каждого запуска
+        # В элементе каждого списка хранится список значений для каждого запуска
         # Добавлять надо каждую итерацию
 
         # Значения целевой функции в зависимости от номера итерации
