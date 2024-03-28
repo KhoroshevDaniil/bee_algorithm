@@ -1,6 +1,6 @@
 ﻿from matplotlib import pyplot as plt
 
-from bee import Hive, SimpleBee
+from bee import Hive
 import bee_examples
 from bee_test_func import DynamicBeeScatterplot
 
@@ -10,7 +10,7 @@ if __name__ == "__main__":
     # bee_type = bee_examples.SphereBee
 
     # bee_type = bee_examples.GoldsteinBee
-    bee_type: SimpleBee = bee_examples.HimmelblauBee
+    bee_type = bee_examples.HimmelblauBee
     # bee_type = bee_examples.RosenbrockBee
 
     # Количество пчел-разведчиков
